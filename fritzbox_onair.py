@@ -12,8 +12,7 @@ from colorama import Fore, Back, Style
 HUEBRIDGEIP = "192.168.178.79"
 LIGHTNAME = "OnAir"
 PHONENUMBER = "9767518"
-Volume = "" # todo: needed?
-#IsCalling = False # todo: check if calling
+Volume = "" # todo: volumne only saved once (on startup)
 
 # Reads the system volume to set it after call back to the value
 def readVolume():
@@ -46,14 +45,6 @@ def callBack (self, id, action, details):
         # Parse Sleeping: Checks also if calling is active
         if (action == "closed" or action == "DISCONNECT") and ("CONNECT" in str(details)):
             Sleeping()
-
-    # Check if calling is active
-    #if action.upper() == "CONNECT":
-    #    IsCalling = True
-
-    ## Set on disconnect
-    #if action.upper() == "DISCONNECT" and "CONNECT" in str(details):
-    #    IsCalling = False
 
 # Read volume for later
 print(Fore.LIGHTBLUE_EX + 'Get volume' + Style.RESET_ALL)
