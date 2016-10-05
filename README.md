@@ -1,5 +1,5 @@
 # FritzboxOnAir
-### Callmonitor of fritzbox with mac and hue integration
+### Callmonitor of fritzbox with Mac and Hue integration
 If a you take a call, or receive a call, the audio volumne of the mac is set to zero, and the given Hue light will light up.
 
 After calling, the light turns off, and the volumne increase to the value before calling :^)
