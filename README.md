@@ -5,7 +5,7 @@ If a you take a call, or receive a call, the audio volumne of the mac is set to 
 After calling, the light turns off, and the volumne increase to the value before calling :^)
 
 # Installing
-* Enable call monitor of fritzbox with #96*5*# (disabling #96*4*#)
+* Enable call monitor of fritzbox with `#96*5*#` (disabling `#96*4*#`)
 * Install [volume-osx](https://pypi.python.org/pypi/volume-osx)
 * Install [colorama](https://pypi.python.org/pypi/colorama)
 * Set your IP address of your hue bridge to variable HUEBRIDGEIP
