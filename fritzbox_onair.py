@@ -12,17 +12,18 @@ from colorama import Fore, Back, Style
 HUEBRIDGEIP = "192.168.178.79"
 LIGHTNAME = "OnAir"
 PHONENUMBER = "9767518"
-Volume = "" # todo: volumne only saved once (on startup)
+Volume = ""
 
 # Reads the system volume to set it after call back to the value
-def readVolume():
+def ReadVolume():
+    global Volume
     v = os.popen('volume-osx')
-    return v.read()
+    Volume = v.read()
 
 # Executes if calling
 def Calling():
     print(Back.GREEN + 'Calling' + Style.RESET_ALL)
-    Volume = readVolume() # for later
+    ReadVolume() # for later
     os.system("volume-osx 0") # mute system volume
     Bridge.set_light(LIGHTNAME,'on', True) # turn light on
 
@@ -48,7 +49,7 @@ def callBack (self, id, action, details):
 
 # Read volume for later
 print(Fore.LIGHTBLUE_EX + 'Get volume' + Style.RESET_ALL)
-Volume = readVolume()
+ReadVolume()
 
 # Init hue
 print(Fore.LIGHTBLUE_EX + 'Init hue' + Style.RESET_ALL)
