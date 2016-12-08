@@ -6,7 +6,6 @@ After calling, the light turns off, and the volumne increase to the value before
 
 # Installing
 * Enable call monitor of fritzbox with `#96*5*#` (disabling `#96*4*#`)
-* Install [volume-osx](https://pypi.python.org/pypi/volume-osx)
 * Install [colorama](https://pypi.python.org/pypi/colorama)
 * Set your IP address of your hue bridge to variable HUEBRIDGEIP
 * Set your light name to variable LIGHTNAME
@@ -18,5 +17,4 @@ After calling, the light turns off, and the volumne increase to the value before
 
 # Sources
 * Thanks HcDevel for the great [fritzbox library](https://github.com/HcDevel/py-fritz-monitor)
-* Thanks russianidiot for the possibility to [mute my Mac](https://github.com/russianidiot/volume-osx.sh.cli)
 * Thanks studioimaginaire for [light up](https://github.com/studioimaginaire/phue)

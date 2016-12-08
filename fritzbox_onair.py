@@ -2,9 +2,10 @@
 # FritzboxOnAir
 #############################################################################
 
-import os
+from subprocess import call
 from call_monitor import callmonitor
 from phue import Bridge
+import os
 
 import colorama
 from colorama import Fore, Back, Style
@@ -14,24 +15,17 @@ LIGHTNAME = "OnAir"
 PHONENUMBER = "9767518"
 Volume = ""
 
-# Reads the system volume to set it after call back to the value
-def ReadVolume():
-    global Volume
-    v = os.popen('volume-osx')
-    Volume = v.read()
-
 # Executes if calling
 def Calling():
     print(Back.GREEN + 'Calling' + Style.RESET_ALL)
-    ReadVolume() # for later
-    os.system("volume-osx 0") # mute system volume
+    os.system("osascript -e 'set volume output muted true'") # mute system volume
     Bridge.set_light(LIGHTNAME,'on', True) # turn light on
 
 # Executes if no calling
 def Sleeping():
     global Volume
     print(Back.CYAN + 'Sleeping' + Style.RESET_ALL)
-    os.system("volume-osx " + Volume) # set to old value
+    os.system("osascript -e 'set volume output muted false'") # unmute system volume
     Bridge.set_light(LIGHTNAME,'on', False) # turn light off
 
 # Get event from fritzbox
@@ -47,10 +41,6 @@ def callBack (self, id, action, details):
         # Parse Sleeping: Checks also if calling is active
         if (action == "closed" or action == "DISCONNECT") and ("CONNECT" in str(details)):
             Sleeping()
-
-# Read volume for later
-print(Fore.LIGHTBLUE_EX + 'Get volume' + Style.RESET_ALL)
-ReadVolume()
 
 # Init hue
 print(Fore.LIGHTBLUE_EX + 'Init hue' + Style.RESET_ALL)
