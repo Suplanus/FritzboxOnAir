@@ -29,6 +29,7 @@ def Calling():
 
 # Executes if no calling
 def Sleeping():
+    global Volume
     print(Back.CYAN + 'Sleeping' + Style.RESET_ALL)
     os.system("volume-osx " + Volume) # set to old value
     Bridge.set_light(LIGHTNAME,'on', False) # turn light off
