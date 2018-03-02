@@ -10,33 +10,46 @@ import os
 
 import colorama
 from colorama import Fore, Back, Style
+from rgb_cie import Converter
+
+import logging
 
 HUEBRIDGEIP = "192.168.178.79"
 LIGHTNAME = "OnAir"
 PHONENUMBER = "9767518"
+LAMP = ""
 Volume = ""
 IsSkypeActive = False
+xy = [0.167, 0.04]
+Whitelist=[]
 
 
 # Executes if calling
 def Calling():
+    global LAMP
     print(Back.GREEN + 'Calling' + Style.RESET_ALL)
     os.system("osascript -e 'set volume output muted true'") # mute system volume
-    Bridge.set_light(LIGHTNAME,'on', True) # turn light on
+    LAMP.on = True
+    LAMP.brightness = 254
+    LAMP.transitiontime = 0
+    LAMP.xy = xy
 
 # Executes if no calling
 def Sleeping():
+    global LAMP
     global Volume
     print(Back.CYAN + 'Sleeping' + Style.RESET_ALL)
     os.system("osascript -e 'set volume output muted false'") # unmute system volume
-    Bridge.set_light(LIGHTNAME,'on', False) # turn light off
+    LAMP.on = False
 
 # Get event from fritzbox
 def callBack (self, id, action, details):
     global IsSkypeActive
+    global Whitelist
+    global xy
 
     print("Call: " + str(id) + " - " + action)
-    print(details)
+    print(str(details))
 
     # Do nothing at multiple calls
     if (id > 1):
@@ -48,6 +61,20 @@ def callBack (self, id, action, details):
         # Parse Calling
         if (action == "outgoing" or action == "CALL" or action == "CONNECT" or action == "accepted" or action == "incoming" or action == "RING"):
             if IsSkypeActive == False:
+                # Whitelist
+                converter = Converter() # for color
+                foundInWhitelist = False
+                for w in Whitelist:
+                    if w in str(details):
+                        foundInWhitelist = True
+                        break
+                if foundInWhitelist == True:
+                    print(Fore.LIGHTBLUE_EX + 'Whitelist: True' + Style.RESET_ALL)
+                    xy = converter.rgbToCIE1931(0,255,0) # green
+                else:
+                    print(Fore.LIGHTBLUE_EX + 'Whitelist: False' + Style.RESET_ALL)
+                    xy = converter.rgbToCIE1931(255,0,0) # red
+
                 Calling()
         # Parse Sleeping: Checks also if calling is active
         if (action == "closed" or action == "DISCONNECT") and ("CONNECT" in str(details)):
@@ -55,10 +82,18 @@ def callBack (self, id, action, details):
                 Sleeping()
 
 # Init hue
+logging.basicConfig()
 print(Fore.LIGHTBLUE_EX + 'Init hue' + Style.RESET_ALL)
 Bridge = Bridge(HUEBRIDGEIP)
 Bridge.connect() # If the app is not registered and the button is not pressed, press the button and call connect() (this only needs to be run a single time)
 Bridge.get_api() # Get the bridge state (This returns the full dictionary that you can explore)
+light_names = Bridge.get_light_objects('name') # Get a dictionary with the light name as the key
+LAMP = light_names[LIGHTNAME] # Get light object
+converter = Converter() # for color
+
+# Whitelist
+Whitelist.append("123")
+Whitelist.append("456")
 
 # Init call monitor
 print(Fore.LIGHTBLUE_EX + 'Init Call monitor' + Style.RESET_ALL)
@@ -75,6 +110,7 @@ while(True):
             skypeFound = True;
             if IsSkypeActive == False:
                 print(Fore.LIGHTBLUE_EX + 'Skype open' + Style.RESET_ALL)
+                xy = converter.rgbToCIE1931(255,0,0) # red
                 Calling()
                 IsSkypeActive = True
     if skypeFound == False:
