@@ -5,6 +5,7 @@
 from subprocess import call
 from call_monitor import callmonitor
 from phue import Bridge
+import psutil
 import os
 
 import colorama
@@ -14,6 +15,8 @@ HUEBRIDGEIP = "192.168.178.79"
 LIGHTNAME = "OnAir"
 PHONENUMBER = "9767518"
 Volume = ""
+IsSkypeActive = False
+
 
 # Executes if calling
 def Calling():
@@ -30,17 +33,26 @@ def Sleeping():
 
 # Get event from fritzbox
 def callBack (self, id, action, details):
+    global IsSkypeActive
+
     print("Call: " + str(id) + " - " + action)
     print(details)
 
+    # Do nothing at multiple calls
+    if (id > 1):
+        print("ID1: do nothing")
+        return
+
     # Check if the phonenumber is is in details
-    if ("'to': '" + PHONENUMBER + "'" in str(details) or "'from': '" + PHONENUMBER + "'" in str(details)):
+    if ("'to': u'" + PHONENUMBER + "'" in str(details) or "'from': u'" + PHONENUMBER + "'" in str(details)):
         # Parse Calling
         if (action == "outgoing" or action == "CALL" or action == "CONNECT" or action == "accepted" or action == "incoming" or action == "RING"):
-            Calling()
+            if IsSkypeActive == False:
+                Calling()
         # Parse Sleeping: Checks also if calling is active
         if (action == "closed" or action == "DISCONNECT") and ("CONNECT" in str(details)):
-            Sleeping()
+            if IsSkypeActive == False:
+                Sleeping()
 
 # Init hue
 print(Fore.LIGHTBLUE_EX + 'Init hue' + Style.RESET_ALL)
@@ -56,8 +68,17 @@ call.connect() # Connect to fritzbox
 
 print(Fore.LIGHTBLUE_EX + 'Write close to end the script' + Style.RESET_ALL)
 while(True):
-    inputText = input()
-    if inputText == "close":
-        print(Fore.LIGHTBLUE_EX + 'Closing...' + Style.RESET_ALL)
-        call.disconnect()
-        break
+    # Skype
+    skypeFound = False
+    for p in psutil.process_iter():
+        if "skype" in p.name().lower():
+            skypeFound = True;
+            if IsSkypeActive == False:
+                print(Fore.LIGHTBLUE_EX + 'Skype open' + Style.RESET_ALL)
+                Calling()
+                IsSkypeActive = True
+    if skypeFound == False:
+        if IsSkypeActive == True:
+            Sleeping()
+            IsSkypeActive = False
+            print(Fore.LIGHTBLUE_EX + 'Skype close' + Style.RESET_ALL)
