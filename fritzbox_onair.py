@@ -14,6 +14,8 @@ from rgb_cie import Converter
 
 import logging
 
+import time
+
 HUEBRIDGEIP = "192.168.178.79"
 LIGHTNAME = "OnAir"
 PHONENUMBER = "9767518"
@@ -104,6 +106,7 @@ call.connect() # Connect to fritzbox
 print(Fore.LIGHTBLUE_EX + 'Write close to end the script' + Style.RESET_ALL)
 while(True):
     # Skype
+    time.sleep(10) # only all 10s
     skypeFound = False
     for p in psutil.process_iter():
         if "skype" in p.name().lower():
