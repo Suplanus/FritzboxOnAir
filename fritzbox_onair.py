@@ -27,6 +27,7 @@ Whitelist=[]
 # Executes if calling
 def Calling():
     global LAMP
+    global xy
     print(Back.GREEN + 'Calling' + Style.RESET_ALL)
     os.system("osascript -e 'set volume output muted true'") # mute system volume
     LAMP.on = True
@@ -46,7 +47,6 @@ def Sleeping():
 def callBack (self, id, action, details):
     global IsSkypeActive
     global Whitelist
-    global xy
 
     print("Call: " + str(id) + " - " + action)
     print(str(details))
