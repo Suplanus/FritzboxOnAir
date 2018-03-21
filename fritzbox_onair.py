@@ -2,11 +2,12 @@
 # FritzboxOnAir
 #############################################################################
 
-from subprocess import call
+import subprocess
+from builtins import input
 from call_monitor import callmonitor
 from phue import Bridge
-import psutil
 import os
+import psutil
 
 import colorama
 from colorama import Fore, Back, Style
@@ -21,6 +22,7 @@ LIGHTNAME = "OnAir"
 PHONENUMBER = "9767518"
 LAMP = ""
 Volume = ""
+IsMuted = ""
 IsSkypeActive = False
 xy = [0.167, 0.04]
 Whitelist=[]
@@ -30,7 +32,23 @@ Whitelist=[]
 def Calling():
     global LAMP
     global xy
+    global Volume
+    global IsMuted
     print(Back.GREEN + 'Calling' + Style.RESET_ALL)
+
+    # Check mute state
+    result = subprocess.run("osascript -e 'output muted of (get volume settings)'", shell=True, stdout=subprocess.PIPE,
+                            universal_newlines=True)
+    IsMuted = result.stdout
+    print(IsMuted)
+    if IsMuted == "true":
+        return
+
+    # result = subprocess.run("osascript -e 'output volume of (get volume settings)'", shell=True, stdout=subprocess.PIPE,
+    #                         universal_newlines=True)
+    # Volume = result.stdout
+    # print("Volume: " + Volume)
+
     os.system("osascript -e 'set volume output muted true'") # mute system volume
     LAMP.on = True
     LAMP.brightness = 254
@@ -41,25 +59,27 @@ def Calling():
 def Sleeping():
     global LAMP
     global Volume
+    global IsMuted
     print(Back.CYAN + 'Sleeping' + Style.RESET_ALL)
-    os.system("osascript -e 'set volume output muted false'") # unmute system volume
+
+    # Check mute state
+    print(IsMuted)
+    if "false" in str(IsMuted):
+        os.system("osascript -e 'set volume output muted false'") # unmute system volume
+
+
     LAMP.on = False
 
 # Get event from fritzbox
-def callBack (self, id, action, details):
+def callBack (id, action, details):
     global IsSkypeActive
     global Whitelist
 
     print("Call: " + str(id) + " - " + action)
     print(str(details))
 
-    # Do nothing at multiple calls
-    if (id > 1):
-        print("ID1: do nothing")
-        return
-
     # Check if the phonenumber is is in details
-    if ("'to': u'" + PHONENUMBER + "'" in str(details) or "'from': u'" + PHONENUMBER + "'" in str(details)):
+    if ("'to': '" + PHONENUMBER + "'" in str(details) or "'from': '" + PHONENUMBER + "'" in str(details)):
         # Parse Calling
         if (action == "outgoing" or action == "CALL" or action == "CONNECT" or action == "accepted" or action == "incoming" or action == "RING"):
             if IsSkypeActive == False:
@@ -79,9 +99,11 @@ def callBack (self, id, action, details):
 
                 Calling()
         # Parse Sleeping: Checks also if calling is active
-        if (action == "closed" or action == "DISCONNECT") and ("CONNECT" in str(details)):
+        if (action == "closed" or action == "DISCONNECT"):
             if IsSkypeActive == False:
                 Sleeping()
+
+
 
 # Init hue
 logging.basicConfig()

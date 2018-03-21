@@ -32,7 +32,7 @@ class callmonitor:
 
 	def call_callback(self, id, action, details):
 		if (self.callback != None):
-				self.callback(self, id, action, details)
+				self.callback(id, action, details)
 
 	def connect (self):
 		self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -69,14 +69,14 @@ class callmonitor:
 		line = line.split(";")
 		timestamp = time.mktime(datetime.datetime.strptime((line[0]), "%d.%m.%y %H:%M:%S").timetuple())
 		if (line[1] == "RING"):
-			self.call_handler[int(line[2])] = {"type": "RING", "from": line[3], "to": line[4], "device": line[5], "initiated": timestamp, "accepted": None, "closed": None}
-			self.call_callback(int(line[2]), "RING", self.call_handler[int(line[2])])
+			self.call_handler[int(line[2])] = {"type": "incoming", "from": line[3], "to": line[4], "device": line[5], "initiated": timestamp, "accepted": None, "closed": None}
+			self.call_callback(int(line[2]), "incoming", self.call_handler[int(line[2])])
 		elif (line[1] == "CALL"):
-			self.call_handler[int(line[2])] = {"type": "CALL", "from": line[4], "to": line[5], "device": line[6], "initiated": timestamp, "accepted": None, "closed": None}
-			self.call_callback(int(line[2]), "CALL", self.call_handler[int(line[2])])
+			self.call_handler[int(line[2])] = {"type": "outgoing", "from": line[4], "to": line[5], "device": line[6], "initiated": timestamp, "accepted": None, "closed": None}
+			self.call_callback(int(line[2]), "outgoing", self.call_handler[int(line[2])])
 		elif (line[1] == "CONNECT"):
-			self.call_handler[int(line[2])]["CONNECT"] = timestamp
-			self.call_callback(int(line[2]), "CONNECT", self.call_handler[int(line[2])])
+			self.call_handler[int(line[2])]["accepted"] = timestamp
+			self.call_callback(int(line[2]), "accepted", self.call_handler[int(line[2])])
 		elif (line[1] == "DISCONNECT"):
-			self.call_handler[int(line[2])]["DISCONNECT"] = timestamp
-			self.call_callback(int(line[2]), "DISCONNECT", self.call_handler[int(line[2])])
+			self.call_handler[int(line[2])]["closed"] = timestamp
+			self.call_callback(int(line[2]), "closed", self.call_handler[int(line[2])])
