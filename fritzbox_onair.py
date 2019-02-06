@@ -44,11 +44,6 @@ def Calling():
     if IsMuted == "true":
         return
 
-    # result = subprocess.run("osascript -e 'output volume of (get volume settings)'", shell=True, stdout=subprocess.PIPE,
-    #                         universal_newlines=True)
-    # Volume = result.stdout
-    # print("Volume: " + Volume)
-
     os.system("osascript -e 'set volume output muted true'") # mute system volume
     LAMP.on = True
     LAMP.brightness = 254
@@ -81,7 +76,8 @@ def callBack (id, action, details):
     # Check if the phonenumber is is in details
     if ("'to': '" + PHONENUMBER + "'" in str(details) or "'from': '" + PHONENUMBER + "'" in str(details)):
         # Parse Calling
-        if (action == "outgoing" or action == "CALL" or action == "CONNECT" or action == "accepted" or action == "incoming" or action == "RING"):
+        #if (action == "outgoing" or action == "CALL" or action == "CONNECT" or action == "accepted" or action == "incoming" or action == "RING"):
+        if (action == "outgoing" or action == "incoming"):
             if IsSkypeActive == False:
                 # Whitelist
                 converter = Converter() # for color
